@@ -3,6 +3,7 @@ package ym.dbRSync.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Database Connection Manager for JDBC connections.
@@ -14,14 +15,10 @@ import java.sql.SQLException;
  */
 public class JdbcConnManager {
 
-	Connection conn;
-	String url;
+	static String URL_DELIMITER = " ";
+	static int DEFAULT_ISOLATION = Connection.TRANSACTION_READ_UNCOMMITTED; 
 
-	public JdbcConnManager(String url) {
-		this.url = url;
-	}
-
-	public Connection getConnection() throws Exception {
+	public static Connection getConnection(String url, String user, String passwd) {
 		Connection conn = null;
 		
 		// MS SQL server JDBC driver
@@ -30,44 +27,37 @@ public class JdbcConnManager {
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 			} catch (ClassNotFoundException cnfe) {
 				try {
-					throw new SQLException("Can't find class for driver: ");
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+					throw new SQLException("Can't find class for driver: com.microsoft.sqlserver.jdbc.SQLServerDriver");
+				} catch (SQLException e) {e.printStackTrace();}
 			}
 
 			try {
-				conn = DriverManager.getConnection(url);
-				conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+				conn = DriverManager.getConnection(url, user, passwd);
+				conn.setTransactionIsolation(DEFAULT_ISOLATION);
 				conn.setReadOnly(true);
-
 			} catch (SQLException e) {
+				System.out.println((new Date()).toString()+" - Connection error = sqlUrl[0]");
 				e.printStackTrace();
 			}
 
-		} else if (url.contains("jdbc:db2")) {
-			String[] db2url = url.split(" ");
-			
+		} else if (url.contains("jdbc:db2")) {			
 			try {
 				Class.forName("com.ibm.db2.jcc.DB2Driver");
-				conn = DriverManager.getConnection(db2url[0],db2url[1],db2url[2]);
-				conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+				conn = DriverManager.getConnection(url, user, passwd);
+				conn.setTransactionIsolation(DEFAULT_ISOLATION);
 				//conn.setReadOnly(true);
 			} catch (ClassNotFoundException cnfe) {
 				try {
-					throw new SQLException("Can't find class for driver: ");
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+					throw new SQLException("Can't find class for driver: com.ibm.db2.jcc.DB2Driver");
+				} catch (SQLException e) {e.printStackTrace();}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 			
 		} else if (url.contains("jdbc:sap")) {
-			String[] sapurl = url.split(" ");
 			try {
 				Class.forName("com.sap.db.jdbc.Driver");
-				conn = DriverManager.getConnection(sapurl[0],sapurl[1],sapurl[2]);
+				conn = DriverManager.getConnection(url, user, passwd);
 				conn.setReadOnly(true);
 
 			} catch (SQLException e) {
@@ -77,7 +67,9 @@ public class JdbcConnManager {
 			}
 
 		} else {
-			throw new ClassNotFoundException("Supported JDBC Class Not Found!");
+			try {
+				throw new ClassNotFoundException("Can't find class for url : "+url);
+			} catch (Exception e) {e.printStackTrace();}
 		}
 		return conn;
 	}

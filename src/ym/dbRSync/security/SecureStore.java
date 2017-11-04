@@ -122,8 +122,9 @@ public class SecureStore {
 		return cipherTextInByteArr;
 	}
 
-	public static byte[] aesDecrypt(byte[] encryptedMessage, String encodedAesKey,
+	public static byte[] aesDecrypt(String encodedEncryptedMessage, String encodedAesKey,
 			String encodedIV, byte[] aadData) {
+		byte[] encryptedMessage =  Base64.getDecoder().decode(encodedEncryptedMessage);
 		Cipher c = null;
 		// decode the base64 encoded string
 		byte[] decodedKey = Base64.getDecoder().decode(encodedAesKey);
