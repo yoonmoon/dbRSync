@@ -1,0 +1,17 @@
+{
+"dbRSync":{
+	"id":10,
+	"name": "dbRSync",
+	"version": "0.1",
+	"admDbCfg":{
+		"connectionType":"jdbc",
+		"jdbcUrl":"",
+		"user":"",
+		"password":"",
+		"encryption":"AES/GCM/PKCS5Padding",
+		"schema":"DBRMON",
+		"cfgFormat":"XML",
+		"cfgSQL":"select cfgxml from dbrmon.admdbcfg where cfgname = 'admDbConfig'"		
+		}
+	}
+}
