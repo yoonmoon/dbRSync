@@ -44,7 +44,6 @@ public class Row {
 				columnNames += ",";
 			}
 		}
-		
 		return columnNames;
 	}
 	
@@ -56,7 +55,6 @@ public class Row {
 				columnValues += ",";
 			}
 		}
-		
 		return columnValues;
 	}
 	
@@ -68,7 +66,6 @@ public class Row {
 				columnNames += ",";
 			}
 		}
-		
 		return columnNames;
 	}
 	

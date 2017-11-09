@@ -5,9 +5,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-public class Db2RowsSyncer {
+public class RowsSyncer {
 
 	public static int READY = 0;
 	public static int UPDATED = 1;
@@ -21,14 +20,13 @@ public class Db2RowsSyncer {
 	public static int ROWRETRIEVED = 30;
 	public static int NOROW = -30;
 
-	public static int executeSync(Connection sourceConn, Connection targetConn, int dbid,
-			String usr, String pwd, String sourceSql, String targetTab) {
+	public static int executeSync(Connection sourceConn, Connection targetConn, 
+			String sourceSql, String targetTab, Object extraVal1, String extraColName1, Object extraVal2, String extraColName2) {
 
 		int status = READY;
 		String message = null;
 		int errorcode = 0;
-		java.sql.Timestamp startTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-
+		
 		if (sourceConn != null) {
 			try {
 				status = CONNECTED;
@@ -45,7 +43,6 @@ public class Db2RowsSyncer {
 				String columnNames = null;
 				String insertSql = null;
 				int columnCount = 0;
-				int readCount = 0;
 				int updatedRowCount = 0;
 				targetConn.setAutoCommit(false);
 				while (rs.next()) {
@@ -55,17 +52,19 @@ public class Db2RowsSyncer {
 					if (i == 1) {
 						params = row.toParams();
 						columnNames = row.toColumnNames();
-						columnNames += ",RMON_DBID , UPDATED";
-						params += ",?,?";
+						if (extraColName1!=null) {
+							columnNames += ","+extraColName1; params += ",?";
+						}
+						if (extraColName2!=null) {
+							columnNames += ","+extraColName2; params += ",?";
+						}
 						insertSql = "INSERT INTO " + targetTab + "(" + columnNames + ") VALUES(" + params
 								+ ")";
 						columnCount = row.getColumnCount();
 					}
-
 					if (i == 1) {
 						pStmt = targetConn.prepareStatement(insertSql);
 					}
-
 					// System.out.println("   #DEBUG probe - row's column size : "+row.getColumnCount());
 					// System.out.println("   #DEBUG probe - row's columns: "+columnNames);
 					for (int i1 = 0; i1 < columnCount; i1++) {
@@ -73,8 +72,15 @@ public class Db2RowsSyncer {
 						// "/" + row.values.get(i1));
 						pStmt.setString(i1 + 1, row.values.get(i1));
 					}
-					pStmt.setInt(columnCount + 1, dbid);
-					pStmt.setTimestamp(columnCount + 2, startTimestamp);
+					int nextColCount = 0;
+					if (extraColName1!=null) {
+						nextColCount++;
+						pStmt.setObject(columnCount + nextColCount, extraVal1);
+					}
+					if (extraColName2!=null) {
+						nextColCount++;
+						pStmt.setObject(columnCount + nextColCount, extraVal2);
+					}
 					try {
 						pStmt.addBatch();
 						if (i % 10 == 0) {
@@ -103,8 +109,8 @@ public class Db2RowsSyncer {
 					}
 					pStmt.close();
 				}
-				System.out.println("Total Read Row(s) : " + i);
-				System.out.println("Total Row Inserted : " + updatedRowCount);
+				System.out.println("Total Row(s) Read : " + i);
+				System.out.println("Total Row(s) Insert : " + updatedRowCount);
 				targetConn.setAutoCommit(true);
 
 				if (status == ROWRETRIEVING) {

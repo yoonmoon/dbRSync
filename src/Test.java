@@ -2,7 +2,9 @@ import java.sql.Connection;
 import java.util.Base64;
 import java.util.Date;
 
-import ym.dbRSync.db.Db2RowsSyncer;
+import org.json.JSONObject;
+
+import ym.dbRSync.db.RowsSyncer;
 import ym.dbRSync.db.JdbcConnManager;
 import ym.dbRSync.security.SecureStore;
 
@@ -10,7 +12,7 @@ import ym.dbRSync.security.SecureStore;
 public class Test {
 
 	/**
-	 * Testing purpose only.
+	 * This class is for testing code purpose.
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -44,12 +46,18 @@ public class Test {
 			Connection targetConn = JdbcConnManager.getConnection(url, "db2admin", new String(passwd));			
 			System.out.println((new Date())+" targetConn - "+targetConn.getMetaData().getDatabaseProductName());
 
-			int returnCode = Db2RowsSyncer.executeSync(sourceConn, targetConn, 1, "db2admin", new String(passwd), "select * from gram9.employee", "TMP.EMPLOYEE");
+			java.sql.Timestamp startTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+			//int returnCode = Db2RowsSyncer.executeSync(sourceConn, targetConn, "select * from gram9.employee", "TMP.EMPLOYEE", new Integer(1), "RMON_DBID", startTimestamp, "UPDATED");
+			int returnCode = RowsSyncer.executeSync(sourceConn, targetConn, "select * from gram9.employee", "TMP.EMPLOYEE", null, null, null, null);
+			
 			System.out.println("returnCode="+returnCode);
 			sourceConn.close();
 			targetConn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		JSONObject json = new JSONObject("{\"message\":\"Hello world\"}");
+		System.out.println(json.toString());
 	}
 }
