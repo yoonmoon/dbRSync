@@ -1,10 +1,9 @@
 import java.sql.Connection;
-import java.util.Base64;
 import java.util.Date;
 
 import org.json.JSONObject;
 
-import ym.dbRSync.db.RowsSyncer;
+import ym.dbRSync.db.MultiRowSyncer;
 import ym.dbRSync.db.JdbcConnManager;
 import ym.dbRSync.security.SecureStore;
 
@@ -48,7 +47,7 @@ public class Test {
 
 			java.sql.Timestamp startTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
 			//int returnCode = Db2RowsSyncer.executeSync(sourceConn, targetConn, "select * from gram9.employee", "TMP.EMPLOYEE", new Integer(1), "RMON_DBID", startTimestamp, "UPDATED");
-			int returnCode = RowsSyncer.executeSync(sourceConn, targetConn, "select * from gram9.employee", "TMP.EMPLOYEE", null, null, null, null);
+			int returnCode = MultiRowSyncer.executeSync(MultiRowSyncer.INSERT_CMD, sourceConn, targetConn, "select * from gram9.employee", "TMP.EMPLOYEE", "TMP.EMPLOYEE_RMTMP", null, null, null, null, null);
 			
 			System.out.println("returnCode="+returnCode);
 			sourceConn.close();
@@ -57,7 +56,7 @@ public class Test {
 			e.printStackTrace();
 		}
 		
-		JSONObject json = new JSONObject("{\"message\":\"Hello world\"}");
+		JSONObject json = new JSONObject("{\"message\":\"MultiRowSync completed.\"}");
 		System.out.println(json.toString());
 	}
 }

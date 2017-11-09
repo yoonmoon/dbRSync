@@ -47,8 +47,8 @@ public class Executor {
 			// int returnCode = Db2RowsSyncer.executeSync(sourceConn, targetConn,
 			// "select * from gram9.employee", "TMP.EMPLOYEE", new Integer(1),
 			// "RMON_DBID", startTimestamp, "UPDATED");
-			int returnCode = RowsSyncer.executeSync(sourceConn, targetConn,
-					"select * from gram9.employee", "TMP.EMPLOYEE", null, null, null, null);
+			int returnCode = MultiRowSyncer.executeSync(MultiRowSyncer.INSERT_CMD, sourceConn, targetConn,
+					"select * from gram9.employee", "TMP.EMPLOYEE", "TMP.EMPLOYEE_RMTMP", null, null, null, null, null);
 
 			System.out.println("returnCode=" + returnCode);
 			sourceConn.close();

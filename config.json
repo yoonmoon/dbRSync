@@ -6,8 +6,8 @@
 	"admDbCfg":{
 		"connectionType":"jdbc",
 		"jdbcUrl":"",
-		"user":"",
-		"password":"",
+		"user":"db2admin",
+		"password":"AjZ8IU0vO3FWEeF7xcLZ5t2qzpVdITT2",
 		"encryption":"AES/GCM/PKCS5Padding",
 		"schema":"DBRMON",
 		"cfgFormat":"XML",
